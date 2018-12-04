@@ -1,0 +1,19 @@
+/Debug/
+#Git Ignore for MCUXpresso project
+
+#Compiled object files
+*.o
+*.d
+
+#Directories
+#.project
+#.settings
+#.cproject
+.directory
+
+# Debug folder
+Debug/
+
+# JLink files
+*.launch
+*.mex
