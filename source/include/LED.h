@@ -26,6 +26,6 @@ inline void LED_turnOn(COLOR farba){
 }
 
 inline void LED_switch(COLOR farba){
-	GPIO_TogglePinsOutput(farba == BLUE ? GPIOD : GPIOB, farba);
+	GPIO_TogglePinsOutput(farba == BLUE ? GPIOD : GPIOB, 1 << farba);
 }
 #endif /* LED_H_ */

@@ -34,7 +34,7 @@ bool Communicator::sendComand(uint8_t elementAddress, uint8_t* data, uint8_t dat
 		sendBuffer[i+4] = data[i];
 	}
 	sendBuffer[dataSize + 4] = CRC;
-	//PRINTF("%s",sendBuffer);
+//    PRINTF("%s",sendBuffer);
 	for(int i = 0; i < sizeof(sendBuffer); i++){
 		PUTCHAR(sendBuffer[i]);
 	}

@@ -48,6 +48,7 @@
 
 #define ACCELL_ADDRESS 		0x1DU
 #define DELTA_T (float)		1
+#define BOARD_DEBUG_UART_BAUDRATE 57600
 
 #if defined(__cplusplus)
 extern "C" {
@@ -77,15 +78,16 @@ int main(void) {
 
 	Communicator communicator;
 
-	uint8_t myData[] = "Elevator are you life";
+	uint8_t myData[] = "Elevator are you life \n ";
 	communicator.sendComand(0Xd0, myData, sizeof(myData));
-
+    uint8_t comannd = 0x01;
+	communicator.sendComand(0Xf0, &comannd, 1);
 
     /* Enter an infinite loop, just incrementing a counter. */
     while(1)
     {
     	if(flagIRQ == 1){
-    		LED_turnOn(BLUE);
+    		LED_switch(BLUE);
     		communicator.sendComand(0Xd0, myData, sizeof(myData));
     		flagIRQ = 0;
     	}
