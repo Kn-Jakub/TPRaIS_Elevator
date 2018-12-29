@@ -16,3 +16,4 @@ Debug/
 
 # JLink files
 *.launch
+/Release/

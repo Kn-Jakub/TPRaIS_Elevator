@@ -10,7 +10,42 @@
 #include <stdint-gcc.h>
 
 #define PACKET_SIZE 	261
-//#define BOARD_DEBUG_UART_BAUDRATE 57600
+#define LED_OUT_P 	0x10
+#define LED_OUT_1   0x11
+#define LED_OUT_2   0x12
+#define LED_OUT_3   0x13
+#define LED_OUT_4   0x14
+
+#define LED_IN_P 	0x20
+#define LED_IN_1   	0x21
+#define LED_IN_2   	0x22
+#define LED_IN_3   	0x23
+#define LED_IN_4   	0x24
+
+#define DISPLAY		0x30
+#define MOTOR		0xf1
+
+#define CABIN		0xF0
+
+#define TERMINAL  	0xd0
+#define WATCHDOG	0xfe
+#define EMERGENCY_BREAK	0x0f
+
+#if defined(__cplusplus)
+extern "C" {
+#endif
+	void UART0_IRQHandler(void);
+#if defined(__cplusplus)
+} //extern C
+#endif
+
+enum Direction{
+	UP = 0,
+	DOWN = 1,
+	STOP
+
+};
+
 
 static uint8_t CRCTab[] =
 	    {0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
@@ -35,7 +70,17 @@ public:
 	Communicator();
 	virtual ~Communicator();
 
-	bool sendComand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize);
+	bool sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize);
+	void setLed(uint8_t ledAddress, bool state);
+
+	void emergencyBreak(bool ON);
+	void controlDisplay(uint8_t floor,Direction direction);
+	void cabineLock(bool lock);
+	void controlMotor(uint8_t speed, Direction dir);
+	void watchDogHandler();
+	void writeToConsole(uint8_t* message,uint8_t size);
+private:
+	void UARTInit();
 
 private:
 	uint8_t m_sendBuffer[PACKET_SIZE];

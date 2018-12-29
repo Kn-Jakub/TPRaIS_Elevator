@@ -52,6 +52,8 @@ public:
 
   void freefall();
 
+  void tapDetection();
+
   /**
    * Get X axis acceleration
    *

@@ -41,59 +41,39 @@
 #include "fsl_debug_console.h"
 #include <fsl_port.h>
 
-#include "include/MMA8451Q.h"
 #include "include/LED.h"
-#include "include/Timer.h"
 #include "include/Communicator.h"
-
-#define ACCELL_ADDRESS 		0x1DU
-#define DELTA_T (float)		1
-#define BOARD_DEBUG_UART_BAUDRATE 57600
-
-#if defined(__cplusplus)
-extern "C" {
-#endif
-	volatile int flagIRQ = 0;
-
-	void PIT_IRQHandler();
-	void PORTA_DriverIRQHandler(void);
-
-
-} //extern C
+#include "include/Controler.h"
 
 void BOARD_INIT();
-
-MMA8451Q* accelerometer;
 
 int main(void) {
 
   	/* Init board hardware. */
 	BOARD_INIT();
-	Timer timer;
-	accelerometer = new MMA8451Q(ACCELL_ADDRESS);
-	accelerometer->freefall();
+	global_communicator = new Communicator();
 
-	timer.setTime((uint64_t)DELTA_T * 1000000);
-	timer.starTimer();
 
-	Communicator communicator;
+//	accelerometer = new MMA8451Q(0X1D);
+//	Controler mainControler;
+//	accelerometer->tapDetection();
+//
+//	global_communicator->emergencyBreak(false);
 
-	uint8_t myData[] = "Elevator are you life \n ";
-	communicator.sendComand(0Xd0, myData, sizeof(myData));
-    uint8_t comannd = 0x01;
-	communicator.sendComand(0Xf0, &comannd, 1);
 
+	/* 		TESTING		*/
+	global_communicator->emergencyBreak(true);
+	global_communicator->emergencyBreak(false);
+	global_communicator->cabineLock(true);
+	global_communicator->controlMotor(100, DOWN);
+	global_communicator->controlMotor(0, STOP);
+	global_communicator->controlDisplay(3, DOWN);
     /* Enter an infinite loop, just incrementing a counter. */
     while(1)
     {
-    	if(flagIRQ == 1){
-    		LED_switch(BLUE);
-    		communicator.sendComand(0Xd0, myData, sizeof(myData));
-    		flagIRQ = 0;
-    	}
 
     }
-
+    delete global_communicator;
     return 0 ;
 }
 
@@ -107,31 +87,22 @@ void BOARD_INIT()
 	BOARD_InitDebugConsole();
 }
 
-void PORTA_DriverIRQHandler(void){
 
-	LED_turnOn(BLUE);
-	uint8_t retStatus;
-	accelerometer->readRegs(0x0C, &retStatus, 1);
-	if(retStatus == 0x04)
-		accelerometer->readRegs(0x16, &retStatus, 1);
-
-	uint32_t interFlags = PORT_GetPinsInterruptFlags(PORTA);
-	PORT_ClearPinsInterruptFlags(PORTA, BOARD_INITPINS_ACCEL_INT2_PIN);
-	PORT_ClearPinsInterruptFlags(PORTA, BOARD_INITPINS_ACCEL_INT1_PIN);
-	interFlags = PORT_GetPinsInterruptFlags(PORTA);
-	if(retStatus > 0) {
-		PRINTF("FREE FALL [retValue: %d]!!!!!!\n\r", retStatus);
-	} else {
-		//PRINTF("Something Wrong [%d]\n\r", retStatus);
-
-	}
-};
-
-
-
-void PIT_IRQHandler(){
-
-	PIT_ClearStatusFlags(PIT, kPIT_Chnl_0, kPIT_TimerFlag);
-	flagIRQ = 1;
-	//PRINTF("PIT handler\r\n");
-}
+// BORDEL
+//Timer timer;
+//	accelerometer = new MMA8451Q(ACCELL_ADDRESS);
+//	accelerometer->freefall();
+//
+//	timer.setTime((uint64_t)DELTA_T * 1000000);
+//	timer.starTimer();
+//
+//	Communicator communicator;
+//
+//	uint8_t myData[] = "Elevator are you life \n ";
+//	communicator.sendCommand(0Xd0, myData, sizeof(myData));
+//    uint8_t comannd = 0x01;
+//	communicator.sendCommand(0Xf0, &comannd, 1);
+//	communicator.setLed(LED_IN_P, true);
+//
+//	communicator.setLed(LED_OUT_3, true);
+//

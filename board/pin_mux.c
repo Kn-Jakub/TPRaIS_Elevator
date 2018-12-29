@@ -48,7 +48,6 @@ BOARD_InitPins:
   - {pin_num: '54', peripheral: GPIOB, signal: 'GPIO, 19', pin_signal: TSI0_CH12/PTB19/TPM2_CH1, direction: OUTPUT, gpio_init_state: 'true'}
   - {pin_num: '34', peripheral: GPIOA, signal: 'GPIO, 14', pin_signal: PTA14/SPI0_PCS0/UART0_TX, direction: INPUT, gpio_interrupt: kPORT_InterruptRisingEdge}
   - {pin_num: '35', peripheral: GPIOA, signal: 'GPIO, 15', pin_signal: PTA15/SPI0_SCK/UART0_RX, direction: INPUT, gpio_interrupt: kPORT_InterruptRisingEdge}
-  - {pin_num: '42', peripheral: GPIOA, signal: 'GPIO, 20', pin_signal: PTA20/RESET_b, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -83,13 +82,6 @@ void BOARD_InitPins(void)
     };
     /* Initialize GPIO functionality on pin PTA15 (pin 35)  */
     GPIO_PinInit(BOARD_INITPINS_ACCEL_INT2_GPIO, BOARD_INITPINS_ACCEL_INT2_PIN, &ACCEL_INT2_config);
-
-    gpio_pin_config_t gpioa_pin42_config = {
-        .pinDirection = kGPIO_DigitalInput,
-        .outputLogic = 0U
-    };
-    /* Initialize GPIO functionality on pin PTA20 (pin 42)  */
-    GPIO_PinInit(GPIOA, 20U, &gpioa_pin42_config);
 
     gpio_pin_config_t LED_RED_config = {
         .pinDirection = kGPIO_DigitalOutput,
@@ -129,12 +121,6 @@ void BOARD_InitPins(void)
 
     /* PORTA2 (pin 28) is configured as UART0_TX */
     PORT_SetPinMux(BOARD_INITPINS_DEBUG_UART_TX_PORT, BOARD_INITPINS_DEBUG_UART_TX_PIN, kPORT_MuxAlt2);
-
-    /* PORTA20 (pin 42) is configured as PTA20 */
-    PORT_SetPinMux(PORTA, 20U, kPORT_MuxAsGpio);
-
-    /* Interrupt configuration on PORTA20 (pin 42): Interrupt on falling edge */
-    PORT_SetPinInterruptConfig(PORTA, 20U, kPORT_InterruptFallingEdge);
 
     /* PORTB18 (pin 53) is configured as PTB18 */
     PORT_SetPinMux(BOARD_INITPINS_LED_RED_PORT, BOARD_INITPINS_LED_RED_PIN, kPORT_MuxAsGpio);
