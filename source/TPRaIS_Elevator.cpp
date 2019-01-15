@@ -29,7 +29,7 @@
  */
  
 /**
- * @brief   Main application for accelerometer
+ * @brief   Main application for Elevator
  * @author	Jakub Pekár
  */
 #include <stdio.h>
@@ -44,16 +44,22 @@
 #include "include/LED.h"
 #include "include/Communicator.h"
 #include "include/Controler.h"
+#include "include/RingBuffer.h"
 
 void BOARD_INIT();
 
 int main(void) {
-
+	global_buffer = new RingBuffer();
   	/* Init board hardware. */
 	BOARD_INIT();
-	global_communicator = new Communicator();
+	uint8_t buffer[]= "alalal\n";
 
-
+	global_communicator = new Communicator(global_buffer);
+	//global_communicator->writeToConsole(buffer, 7);
+	global_communicator->cabineLock(true);
+	global_communicator->setLed(LED_IN_1, 1);
+	global_communicator->setLed(LED_IN_2, 1);
+	global_communicator->setLed(LED_OUT_2, 1);
 //	accelerometer = new MMA8451Q(0X1D);
 //	Controler mainControler;
 //	accelerometer->tapDetection();
@@ -62,18 +68,18 @@ int main(void) {
 
 
 	/* 		TESTING		*/
-	global_communicator->emergencyBreak(true);
-	global_communicator->emergencyBreak(false);
-	global_communicator->cabineLock(true);
-	global_communicator->controlMotor(100, DOWN);
-	global_communicator->controlMotor(0, STOP);
-	global_communicator->controlDisplay(3, DOWN);
+//	global_communicator->emergencyBreak(true);
+//	global_communicator->emergencyBreak(false);
+//	global_communicator->cabineLock(true);
+//	global_communicator->controlMotor(100, DOWN);
+//	global_communicator->controlMotor(0, STOP);
+//	global_communicator->controlDisplay(3, DOWN);
     /* Enter an infinite loop, just incrementing a counter. */
+	PRINTF("Test STARTING \n\r");
     while(1)
     {
-
     }
-    delete global_communicator;
+  //  delete global_communicator;
     return 0 ;
 }
 
