@@ -52,20 +52,20 @@ int main(void) {
 	global_buffer = new RingBuffer();
   	/* Init board hardware. */
 	BOARD_INIT();
-	uint8_t buffer[]= "alalal\n";
+	Message message;
 
 	global_communicator = new Communicator(global_buffer);
-	//global_communicator->writeToConsole(buffer, 7);
 	global_communicator->cabineLock(true);
-	global_communicator->setLed(LED_IN_1, 1);
+	global_communicator->setLed(LED_IN_1, 0);
 	global_communicator->setLed(LED_IN_2, 1);
-	global_communicator->setLed(LED_OUT_2, 1);
+	global_communicator->setLed(LED_OUT_4, 1);
+	global_communicator->controlMotor(100, UP);
 //	accelerometer = new MMA8451Q(0X1D);
 //	Controler mainControler;
 //	accelerometer->tapDetection();
 //
 //	global_communicator->emergencyBreak(false);
-
+	global_communicator->receivingData(message);
 
 	/* 		TESTING		*/
 //	global_communicator->emergencyBreak(true);
@@ -78,6 +78,7 @@ int main(void) {
 	PRINTF("Test STARTING \n\r");
     while(1)
     {
+    	global_communicator->receivingData(message);
     }
   //  delete global_communicator;
     return 0 ;

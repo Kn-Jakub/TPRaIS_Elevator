@@ -20,9 +20,9 @@ void Communicator::uart_callback(UART0_Type *base, lpsci_handle_t *handle, statu
 	}
 	if (kStatus_LPSCI_RxIdle == status)
 	{
+		//global_buffer->push((uint8_t*)&rxChar, 1);
 	    rxFinished = true;
 	    PRINTF("RxIdle\n");
-	    LPSCI_TransferReceiveNonBlocking(UART0, handle,(lpsci_transfer_t*) &receiver,(size_t*) &size);
 	}
 
 
@@ -37,14 +37,31 @@ Communicator::~Communicator()
 {
 }
 
+void Communicator::UARTInit()
+{
+	lpsci_config_t user_config;
+	LPSCI_GetDefaultConfig(&user_config);
+	user_config.baudRate_Bps = 57600U;
+	LPSCI_Init(UART0, &user_config, CLOCK_GetFreq(kCLOCK_PllFllSelClk));
+
+	LPSCI_EnableTx(UART0, true);
+	LPSCI_EnableRx(UART0, true);
+
+	receiver.data = (uint8_t*) &rxChar;
+	receiver.dataSize = 1;
+
+	sender.data =(uint8_t*) sendBuffer;
+	sender.dataSize = 0;
+	LPSCI_TransferStartRingBuffer(UART0, (lpsci_handle_t*) &uart_handle,(uint8_t*) ringBuffer, PACKET_SIZE);
+	LPSCI_TransferCreateHandle(UART0,(lpsci_handle_t*) &uart_handle, Communicator::uart_callback, NULL);
+	rxFinished = false;
+
+}
+
 bool Communicator::sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize)
 {
 	uint8_t sizeOfData = 0;
 
-//	sendBuffer[0] = 0xA0;
-//	sendBuffer[1] = elementAddress;
-//	sendBuffer[2] = _myAddress;
-//	sendBuffer[3] = dataSize;
 	sender.data[sizeOfData++] = 0xA0;
 	sender.data[sizeOfData++] = elementAddress;
 	sender.data[sizeOfData++] = _myAddress;
@@ -57,29 +74,16 @@ bool Communicator::sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t da
 
 	while(!txFinished); // waiting for send all data
 
-	//txFinished = false;
-	//LPSCI_TransferSendNonBlocking(UART0, (lpsci_handle_t*) &uart_handle , (lpsci_transfer_t*) &sender);
-	LPSCI_WriteBlocking(UART0, sender.data, sender.dataSize);
+	txFinished = false;
+	LPSCI_TransferSendNonBlocking(UART0, (lpsci_handle_t*) &uart_handle , (lpsci_transfer_t*) &sender);
+//	LPSCI_WriteBlocking(UART0, sender.data, sender.dataSize);
 	return true;
 }
 
 bool Communicator::receivingData(Message& message)
 {
-	receiver.dataSize = 1;
-	rxFinished = false;
-	LPSCI_TransferReceiveNonBlocking(UART0, (lpsci_handle_t*) &uart_handle,(lpsci_transfer_t*) &receiver,(size_t*) &size);
-	while(!rxFinished); // receiving of start
-
-	// if receiver.data == 0xA0
-	receiver.data = message.head;
-	receiver.dataSize = 3;
-	rxFinished = false;
-	LPSCI_TransferReceiveNonBlocking(UART0, (lpsci_handle_t*) &uart_handle,(lpsci_transfer_t*) &receiver,(size_t*) &size);
-	while(!rxFinished); //waiting for receiving head of message
-
-
 	receiver.data = message.data;
-	receiver.dataSize = (message.head[2] +1);
+	receiver.dataSize = 6;
 	rxFinished = false;
 	LPSCI_TransferReceiveNonBlocking(UART0, (lpsci_handle_t*) &uart_handle,(lpsci_transfer_t*) &receiver,(size_t*) &size);
 	while(!rxFinished); // waiting for receiving of data
@@ -178,26 +182,7 @@ void Communicator::writeToConsole(uint8_t* message,uint8_t size)
 	sendCommand(TERMINAL, message, size);
 }
 
-void Communicator::UARTInit()
-{
-	lpsci_config_t user_config;
-	LPSCI_GetDefaultConfig(&user_config);
-	user_config.baudRate_Bps = 57600U;
-	LPSCI_Init(UART0, &user_config, CLOCK_GetFreq(kCLOCK_PllFllSelClk));
 
-	LPSCI_EnableTx(UART0, true);
-	LPSCI_EnableRx(UART0, true);
-
-	receiver.data = (uint8_t*) &rxChar;
-	receiver.dataSize = 1;
-
-	sender.data =(uint8_t*) sendBuffer;
-	sender.dataSize = 0;
-
-	LPSCI_TransferCreateHandle(UART0,(lpsci_handle_t*) &uart_handle, Communicator::uart_callback, NULL);
-	rxFinished = false;
-
-}
 
 uint8_t Communicator::calcCRC(uint8_t receiverAddress, uint8_t senderAddress, uint8_t* data, uint8_t dataSize)
 {
@@ -217,60 +202,5 @@ bool Communicator::verifyMessage(Message& message)
 	return (calcCRC(message.getReceiverAddress(), message.getSenderAddress(), message.data, message.getSize()) == message.getCRC());
 }
 
-//void UART0_IRQHandler(void) {
-//	UART0_Type* base = UART0;
-//	uint8_t pcBuffer;
-//
-//	/* If RX overrun. */
-//	if (UART0_S1_OR_MASK & base->S1) {
-//		while (UART0_S1_RDRF_MASK & base->S1) {
-//			(void) base->D;
-//		}
-//		LPSCI_ClearStatusFlags(base, kLPSCI_RxOverrunFlag);
-//	}
-//
-//	/* Send data register empty and the interrupt is enabled. */
-//	if ((base->S1 & kLPSCI_TxDataRegEmptyFlag)) {
-//		int c = 0;
-//		//int c = bufferRead(&cBuffer, &pcBuffer, 1);
-//		if (c > 0) {
-////			LPSCI_WriteBlocking(UART0, &pcBuffer, 1);
-//			//UART0->D = pcBuffer;
-//		} else {
-//			/* Disable TX register empty interrupt. */
-////			base->C2 &= ~UART0_C2_TIE_MASK;
-//			LPSCI_DisableInterrupts(base, kLPSCI_TxDataRegEmptyInterruptEnable);
-//		}
-//		LPSCI_ClearStatusFlags(base, kLPSCI_TxDataRegEmptyFlag);
-//	}
-//	/* If RX overrun. */
-//	if (UART0_S1_OR_MASK & base->S1) {
-//		while (UART0_S1_RDRF_MASK & base->S1) {
-//			(void) base->D;
-//		}
-//
-//		LPSCI_ClearStatusFlags(base, kLPSCI_RxOverrunFlag);
-//	}
-//
-//	/* Receive data register full */
-//	if ((UART0_S1_RDRF_MASK & base->S1) && (UART0_C2_RIE_MASK & base->C2)) {
-//		uint8_t rxData;
-//		static uint8_t size = 0;
-//		rxData = base->D;
-//		//global_buffer->push(&rxData, 1);
-//		PUTCHAR(rxData);
-////		if (rxData == '\n' || rxData == '\r') {
-////			callBack_struct_pt->callbackHandler(&outBuffer, size,
-////					callBack_struct_pt->data);
-////			size = 0;
-////		} else {
-////			size++;
-////			if (isalnum(rxData))
-////
-////				bufferWrite(&outBuffer, &rxData, 1);
-////		}
-//		LED_switch(RED);
-//	}
-//
-//}
+
 

@@ -45,6 +45,7 @@ extern "C" {
 #endif
 	//void UART0_IRQHandler(void);
 	static volatile uint8_t sendBuffer[PACKET_SIZE];
+	static volatile uint8_t ringBuffer[PACKET_SIZE];
 	static volatile uint8_t rxChar;
 	static volatile size_t size = 1;
 
@@ -61,22 +62,21 @@ extern "C" {
 #endif
 
 struct Message{
-	uint8_t head[3];
 	uint8_t data[10];
 
 	uint8_t getSize()
 	{
-		return head[2];
+		return data[3];
 	}
 
 	uint8_t getSenderAddress()
 	{
-		return head[1];
+		return data[2];
 	}
 
 	uint8_t getReceiverAddress()
 	{
-		return head[0];
+		return data[1];
 	}
 
 	uint8_t getCRC()
