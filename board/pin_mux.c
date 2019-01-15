@@ -41,13 +41,13 @@ BOARD_InitPins:
 - pin_list:
   - {pin_num: '28', peripheral: UART0, signal: TX, pin_signal: TSI0_CH3/PTA2/UART0_TX/TPM2_CH1}
   - {pin_num: '27', peripheral: UART0, signal: RX, pin_signal: TSI0_CH2/PTA1/UART0_RX/TPM2_CH0}
+  - {pin_num: '74', peripheral: GPIOD, signal: 'GPIO, 1', pin_signal: ADC0_SE5b/PTD1/SPI0_SCK/TPM0_CH1, direction: OUTPUT}
+  - {pin_num: '54', peripheral: GPIOB, signal: 'GPIO, 19', pin_signal: TSI0_CH12/PTB19/TPM2_CH1, direction: OUTPUT}
+  - {pin_num: '53', peripheral: GPIOB, signal: 'GPIO, 18', pin_signal: TSI0_CH11/PTB18/TPM2_CH0, direction: OUTPUT}
+  - {pin_num: '34', peripheral: GPIOA, signal: 'GPIO, 14', pin_signal: PTA14/SPI0_PCS0/UART0_TX, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge}
+  - {pin_num: '35', peripheral: GPIOA, signal: 'GPIO, 15', pin_signal: PTA15/SPI0_SCK/UART0_RX, direction: INPUT, gpio_interrupt: kPORT_InterruptFallingEdge}
   - {pin_num: '24', peripheral: I2C0, signal: SCL, pin_signal: PTE24/TPM0_CH0/I2C0_SCL}
   - {pin_num: '25', peripheral: I2C0, signal: SDA, pin_signal: PTE25/TPM0_CH1/I2C0_SDA}
-  - {pin_num: '74', peripheral: GPIOD, signal: 'GPIO, 1', pin_signal: ADC0_SE5b/PTD1/SPI0_SCK/TPM0_CH1, direction: OUTPUT, gpio_init_state: 'true'}
-  - {pin_num: '53', peripheral: GPIOB, signal: 'GPIO, 18', pin_signal: TSI0_CH11/PTB18/TPM2_CH0, direction: OUTPUT, gpio_init_state: 'true'}
-  - {pin_num: '54', peripheral: GPIOB, signal: 'GPIO, 19', pin_signal: TSI0_CH12/PTB19/TPM2_CH1, direction: OUTPUT, gpio_init_state: 'true'}
-  - {pin_num: '34', peripheral: GPIOA, signal: 'GPIO, 14', pin_signal: PTA14/SPI0_PCS0/UART0_TX, direction: INPUT, gpio_interrupt: kPORT_InterruptRisingEdge}
-  - {pin_num: '35', peripheral: GPIOA, signal: 'GPIO, 15', pin_signal: PTA15/SPI0_SCK/UART0_RX, direction: INPUT, gpio_interrupt: kPORT_InterruptRisingEdge}
  * BE CAREFUL MODIFYING THIS COMMENT - IT IS YAML SETTINGS FOR TOOLS ***********
  */
 /* clang-format on */
@@ -85,21 +85,21 @@ void BOARD_InitPins(void)
 
     gpio_pin_config_t LED_RED_config = {
         .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+        .outputLogic = 0U
     };
     /* Initialize GPIO functionality on pin PTB18 (pin 53)  */
     GPIO_PinInit(BOARD_INITPINS_LED_RED_GPIO, BOARD_INITPINS_LED_RED_PIN, &LED_RED_config);
 
     gpio_pin_config_t LED_GREEN_config = {
         .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+        .outputLogic = 0U
     };
     /* Initialize GPIO functionality on pin PTB19 (pin 54)  */
     GPIO_PinInit(BOARD_INITPINS_LED_GREEN_GPIO, BOARD_INITPINS_LED_GREEN_PIN, &LED_GREEN_config);
 
     gpio_pin_config_t LED_BLUE_config = {
         .pinDirection = kGPIO_DigitalOutput,
-        .outputLogic = 1U
+        .outputLogic = 0U
     };
     /* Initialize GPIO functionality on pin PTD1 (pin 74)  */
     GPIO_PinInit(BOARD_INITPINS_LED_BLUE_GPIO, BOARD_INITPINS_LED_BLUE_PIN, &LED_BLUE_config);
@@ -110,14 +110,14 @@ void BOARD_InitPins(void)
     /* PORTA14 (pin 34) is configured as PTA14 */
     PORT_SetPinMux(BOARD_INITPINS_ACCEL_INT1_PORT, BOARD_INITPINS_ACCEL_INT1_PIN, kPORT_MuxAsGpio);
 
-    /* Interrupt configuration on PORTA14 (pin 34): Interrupt on rising edge */
-    PORT_SetPinInterruptConfig(BOARD_INITPINS_ACCEL_INT1_PORT, BOARD_INITPINS_ACCEL_INT1_PIN, kPORT_InterruptRisingEdge);
+    /* Interrupt configuration on PORTA14 (pin 34): Interrupt on falling edge */
+    PORT_SetPinInterruptConfig(BOARD_INITPINS_ACCEL_INT1_PORT, BOARD_INITPINS_ACCEL_INT1_PIN, kPORT_InterruptFallingEdge);
 
     /* PORTA15 (pin 35) is configured as PTA15 */
     PORT_SetPinMux(BOARD_INITPINS_ACCEL_INT2_PORT, BOARD_INITPINS_ACCEL_INT2_PIN, kPORT_MuxAsGpio);
 
-    /* Interrupt configuration on PORTA15 (pin 35): Interrupt on rising edge */
-    PORT_SetPinInterruptConfig(BOARD_INITPINS_ACCEL_INT2_PORT, BOARD_INITPINS_ACCEL_INT2_PIN, kPORT_InterruptRisingEdge);
+    /* Interrupt configuration on PORTA15 (pin 35): Interrupt on falling edge */
+    PORT_SetPinInterruptConfig(BOARD_INITPINS_ACCEL_INT2_PORT, BOARD_INITPINS_ACCEL_INT2_PIN, kPORT_InterruptFallingEdge);
 
     /* PORTA2 (pin 28) is configured as UART0_TX */
     PORT_SetPinMux(BOARD_INITPINS_DEBUG_UART_TX_PORT, BOARD_INITPINS_DEBUG_UART_TX_PIN, kPORT_MuxAlt2);

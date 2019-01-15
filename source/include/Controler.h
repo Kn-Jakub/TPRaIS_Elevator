@@ -8,16 +8,21 @@
 #ifndef CONTROLER_H_
 #define CONTROLER_H_
 
-#include <include/Communicator.h>
-#include <include/MMA8451Q.h>
-#include <include/Protothread.h>
-#include <include/Timer.h>
-#include <include/LED.h>
+
+#include "include/MMA8451Q.h"
+//#include <include/Timer.h>
+#include "include/LED.h"
+#include <fsl_lpsci.h>
+
+//Kernel includes
+#include "FreeRTOS.h"
+#include "task.h"
+#include "timers.h"
+#include "queue.h"
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
-	static volatile int flagIRQ = 0;
 
 	void PIT_IRQHandler();
 	void PORTA_DriverIRQHandler(void);
@@ -25,19 +30,15 @@ extern "C" {
 
 } //extern C
 
-
-static Communicator* global_communicator;
-static MMA8451Q* accelerometer;
-
-class Controler: public Protothread {
+class Controler{
 public:
 	Controler();
 	~Controler() = default;
-	bool Run() override;
-
+	bool Run();
+	static void recvTask(void* pvParameters);
+	static void controlTask1(void* pvParameters);
+	static void uart_callback(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData);
 private:
-
-	Timer _WDTimer;
 };
 
 #endif /* CONTROLER_H_ */

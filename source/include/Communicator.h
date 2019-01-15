@@ -5,9 +5,19 @@
  *      Author: Jakub Pekar
  */
 
+/*
+ * 		1B				 1B					1B           1B
+ * |  StartByte  | ReceiverAddress  | SenderDdress  | DataSize | ... DATA  ... | CRC |
+ *
+ *
+ */
+
 #ifndef SRC_COMMUNICATOR_H_
 #define SRC_COMMUNICATOR_H_
+//#include "include/RingBuffer.h"
 #include <stdint-gcc.h>
+#include <fsl_lpsci.h>
+
 
 #define PACKET_SIZE 	261
 #define LED_OUT_P 	0x10
@@ -34,10 +44,49 @@
 #if defined(__cplusplus)
 extern "C" {
 #endif
-	void UART0_IRQHandler(void);
+	//void UART0_IRQHandler(void);
+	static volatile uint8_t sendBuffer[PACKET_SIZE];
+	static volatile uint8_t rxChar;
+	static volatile size_t size = 1;
+
+	static volatile lpsci_transfer_t sender;
+	static volatile lpsci_transfer_t receiver;
+
+	static volatile lpsci_handle_t uart_handle;
+
+	static volatile bool txFinished = true;
+	static volatile bool rxFinished = true;
+
 #if defined(__cplusplus)
 } //extern C
 #endif
+
+
+
+struct Message{
+	uint8_t head[3];
+	uint8_t data[10];
+
+	uint8_t getSize()
+	{
+		return head[2];
+	}
+
+	uint8_t getSenderAddress()
+	{
+		return head[1];
+	}
+
+	uint8_t getReceiverAddress()
+	{
+		return head[0];
+	}
+
+	uint8_t getCRC()
+	{
+		return data[this->getSize()+1];
+	}
+};
 
 enum Direction{
 	UP = 0,
@@ -45,7 +94,6 @@ enum Direction{
 	STOP
 
 };
-
 
 static uint8_t CRCTab[] =
 	    {0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
@@ -65,12 +113,15 @@ static uint8_t CRCTab[] =
 	    233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
 	    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53};
 
+//static void (callbackHandlerUART)(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData);
+
 class Communicator {
 public:
 	Communicator();
 	virtual ~Communicator();
 
 	bool sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize);
+	bool receivingData(Message& message);
 	void setLed(uint8_t ledAddress, bool state);
 
 	void emergencyBreak(bool ON);
@@ -79,13 +130,14 @@ public:
 	void controlMotor(uint8_t speed, Direction dir);
 	void watchDogHandler();
 	void writeToConsole(uint8_t* message,uint8_t size);
-private:
+	bool verifyMessage(Message& message);
+	uint8_t calcCRC(uint8_t receiverAddress, uint8_t senderAddress, uint8_t* data, uint8_t dataSize);
 	void UARTInit();
+private:
+
 
 private:
-	uint8_t m_sendBuffer[PACKET_SIZE];
-	uint8_t m_recvBuffer[PACKET_SIZE];
-	uint8_t m_myAddress;
+	uint8_t _myAddress;
 
 };
 

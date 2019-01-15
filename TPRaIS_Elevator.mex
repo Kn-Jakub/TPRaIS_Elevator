@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding= "UTF-8" ?>
-<configuration name="MKL25Z128xxx4" version="1.4" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4 http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4.xsd" uuid="3ce2f1eb-c076-498f-bcd2-19c37814248c" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<configuration name="MKL25Z128xxx4" version="1.4" xsi:schemaLocation="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4 http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4.xsd" uuid="1e9da76f-7965-497f-9fc4-40477a6566dc" xmlns="http://mcuxpresso.nxp.com/XSD/mex_configuration_1.4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <common>
       <processor>MKL25Z128xxx4</processor>
       <package>MKL25Z128VLK4</package>
@@ -33,12 +33,12 @@
                         <data>true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="Peripheral" resourceId="I2C0" description="Peripheral I2C0 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                  <dependency resourceType="Peripheral" resourceId="GPIOA" description="Peripheral GPIOA is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
                      <feature name="initialized" evaluation="equal">
                         <data>true</data>
                      </feature>
                   </dependency>
-                  <dependency resourceType="Peripheral" resourceId="GPIOA" description="Peripheral GPIOA is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
+                  <dependency resourceType="Peripheral" resourceId="I2C0" description="Peripheral I2C0 is not initialized" problem_level="1" source="Pins:BOARD_InitPins">
                      <feature name="initialized" evaluation="equal">
                         <data>true</data>
                      </feature>
@@ -62,38 +62,35 @@
                <pins>
                   <pin peripheral="UART0" signal="TX" pin_num="28" pin_signal="TSI0_CH3/PTA2/UART0_TX/TPM2_CH1"/>
                   <pin peripheral="UART0" signal="RX" pin_num="27" pin_signal="TSI0_CH2/PTA1/UART0_RX/TPM2_CH0"/>
-                  <pin peripheral="I2C0" signal="SCL" pin_num="24" pin_signal="PTE24/TPM0_CH0/I2C0_SCL"/>
-                  <pin peripheral="I2C0" signal="SDA" pin_num="25" pin_signal="PTE25/TPM0_CH1/I2C0_SDA"/>
                   <pin peripheral="GPIOD" signal="GPIO, 1" pin_num="74" pin_signal="ADC0_SE5b/PTD1/SPI0_SCK/TPM0_CH1">
                      <pin_features>
                         <pin_feature name="direction" value="OUTPUT"/>
-                        <pin_feature name="gpio_init_state" value="true"/>
-                     </pin_features>
-                  </pin>
-                  <pin peripheral="GPIOB" signal="GPIO, 18" pin_num="53" pin_signal="TSI0_CH11/PTB18/TPM2_CH0">
-                     <pin_features>
-                        <pin_feature name="direction" value="OUTPUT"/>
-                        <pin_feature name="gpio_init_state" value="true"/>
                      </pin_features>
                   </pin>
                   <pin peripheral="GPIOB" signal="GPIO, 19" pin_num="54" pin_signal="TSI0_CH12/PTB19/TPM2_CH1">
                      <pin_features>
                         <pin_feature name="direction" value="OUTPUT"/>
-                        <pin_feature name="gpio_init_state" value="true"/>
+                     </pin_features>
+                  </pin>
+                  <pin peripheral="GPIOB" signal="GPIO, 18" pin_num="53" pin_signal="TSI0_CH11/PTB18/TPM2_CH0">
+                     <pin_features>
+                        <pin_feature name="direction" value="OUTPUT"/>
                      </pin_features>
                   </pin>
                   <pin peripheral="GPIOA" signal="GPIO, 14" pin_num="34" pin_signal="PTA14/SPI0_PCS0/UART0_TX">
                      <pin_features>
                         <pin_feature name="direction" value="INPUT"/>
-                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptRisingEdge"/>
+                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptFallingEdge"/>
                      </pin_features>
                   </pin>
                   <pin peripheral="GPIOA" signal="GPIO, 15" pin_num="35" pin_signal="PTA15/SPI0_SCK/UART0_RX">
                      <pin_features>
                         <pin_feature name="direction" value="INPUT"/>
-                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptRisingEdge"/>
+                        <pin_feature name="gpio_interrupt" value="kPORT_InterruptFallingEdge"/>
                      </pin_features>
                   </pin>
+                  <pin peripheral="I2C0" signal="SCL" pin_num="24" pin_signal="PTE24/TPM0_CH0/I2C0_SCL"/>
+                  <pin peripheral="I2C0" signal="SDA" pin_num="25" pin_signal="PTE25/TPM0_CH1/I2C0_SDA"/>
                </pins>
             </function>
          </functions_list>
@@ -208,10 +205,10 @@
       </clocks>
       <periphs name="Peripherals" version="4.1" enabled="true" update_project_code="true">
          <peripherals_profile>
-            <processor_version>N/A</processor_version>
+            <processor_version></processor_version>
          </peripherals_profile>
          <functional_groups>
-            <functional_group name="BOARD_InitPeripherals" uuid="56904359-086b-45f6-adc1-3a8440be8cd2" called_from_default_init="true" id_prefix="" core="">
+            <functional_group name="BOARD_InitPeripherals" uuid="3aa216e8-4605-44f0-a17c-4935cc8be7b8" called_from_default_init="true" id_prefix="" core="">
                <description></description>
                <options/>
                <dependencies/>

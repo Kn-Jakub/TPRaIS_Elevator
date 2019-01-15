@@ -50,7 +50,7 @@
 #define BOARD_UART_IRQ_HANDLER UART0_IRQHandler
 
 #ifndef BOARD_DEBUG_UART_BAUDRATE
-#define BOARD_DEBUG_UART_BAUDRATE 57600
+#define BOARD_DEBUG_UART_BAUDRATE 115200
 #endif /* BOARD_DEBUG_UART_BAUDRATE */
 
 /*! @brief Indexes of the TSI channels for on board electrodes */

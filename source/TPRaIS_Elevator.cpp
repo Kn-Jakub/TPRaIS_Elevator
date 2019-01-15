@@ -29,8 +29,8 @@
  */
  
 /**
- * @brief   Main application for accelerometer
- * @author	Jakub Pekár
+ * @file    MKL25Z128xxx4_Project.cpp
+ * @brief   Application entry point.
  */
 #include <stdio.h>
 #include "board.h"
@@ -39,43 +39,56 @@
 #include "clock_config.h"
 #include "MKL25Z4.h"
 #include "fsl_debug_console.h"
-#include <fsl_port.h>
 
-#include "include/LED.h"
-#include "include/Communicator.h"
+/* API Includes*/
 #include "include/Controler.h"
 
-void BOARD_INIT();
 
+/* TODO: insert other include files here. */
+
+/* TODO: insert other definitions and declarations here. */
+
+/* Globals */
+
+/* Declarations */
+
+void BOARD_INIT();
+//static void recvTask(void* pvParameters);
+//static void controlTask2(void* pvParameters);
+/*
+ * @brief   Application entry point.
+ */
 int main(void) {
 
   	/* Init board hardware. */
-	BOARD_INIT();
-	global_communicator = new Communicator();
+    BOARD_INIT();
+    PRINTF("Start with rtos\n");
+    Controler mainControler;
+    mainControler.Run();
 
-
-//	accelerometer = new MMA8451Q(0X1D);
-//	Controler mainControler;
-//	accelerometer->tapDetection();
-//
-//	global_communicator->emergencyBreak(false);
-
-
-	/* 		TESTING		*/
-	global_communicator->emergencyBreak(true);
-	global_communicator->emergencyBreak(false);
-	global_communicator->cabineLock(true);
-	global_communicator->controlMotor(100, DOWN);
-	global_communicator->controlMotor(0, STOP);
-	global_communicator->controlDisplay(3, DOWN);
-    /* Enter an infinite loop, just incrementing a counter. */
-    while(1)
-    {
-
+    while(1) {
     }
-    delete global_communicator;
     return 0 ;
 }
+
+/* Definitions */
+
+//static void recvTask(void* pvParameters)
+//{
+//	for(;;)
+//	{
+//		PRINTF("RECV TASK\n");
+//		vTaskDelay(500 / portTICK_PERIOD_MS);
+//	}
+//}
+//static void controlTask2(void* pvParameters)
+//{
+//	for(;;)
+//	{
+//		PRINTF(" TASK 2 \n");
+//		vTaskDelay(2000 / portTICK_PERIOD_MS);
+//	}
+//}
 
 void BOARD_INIT()
 {
@@ -88,21 +101,3 @@ void BOARD_INIT()
 }
 
 
-// BORDEL
-//Timer timer;
-//	accelerometer = new MMA8451Q(ACCELL_ADDRESS);
-//	accelerometer->freefall();
-//
-//	timer.setTime((uint64_t)DELTA_T * 1000000);
-//	timer.starTimer();
-//
-//	Communicator communicator;
-//
-//	uint8_t myData[] = "Elevator are you life \n ";
-//	communicator.sendCommand(0Xd0, myData, sizeof(myData));
-//    uint8_t comannd = 0x01;
-//	communicator.sendCommand(0Xf0, &comannd, 1);
-//	communicator.setLed(LED_IN_P, true);
-//
-//	communicator.setLed(LED_OUT_3, true);
-//
