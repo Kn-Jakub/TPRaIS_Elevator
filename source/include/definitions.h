@@ -41,6 +41,12 @@
 #define BUTT_IN_3 	0xB3
 #define BUTT_IN_4 	0xB4
 
+#define BUTT_OUT_P 	0xC0
+#define BUTT_OUT_1 	0xC1
+#define BUTT_OUT_2 	0xC2
+#define BUTT_OUT_3 	0xC3
+#define BUTT_OUT_4 	0xC4
+
 #define DISPLAY		0x30
 #define MOTOR		0xf1
 
@@ -51,7 +57,7 @@
 #define EMERGENCY_BREAK	0x0f
 
 struct Message{
-	uint8_t data[10];
+	uint8_t data[15];
 
 	uint8_t getSize()
 	{
@@ -100,6 +106,12 @@ extern "C" {
 	static volatile bool txFinished = true;
 	static volatile bool rxFinished = true;
 	static volatile bool ackArrived = false;
+
+	/* the global variables for observing elevator*/
+	static volatile bool floorElevator[5] = {false}; // Field that represent floor where has to stop Elevator
+	static volatile uint8_t elevatorPosition = 4 ;
+	static volatile Direction elevatorDirection;
+	static volatile bool elevatorIsMoving = false;
 
 
 #if defined(__cplusplus)

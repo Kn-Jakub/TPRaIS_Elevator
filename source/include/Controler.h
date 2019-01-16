@@ -20,6 +20,9 @@
 #include "timers.h"
 #include "queue.h"
 
+#include "include/definitions.h"
+#include "include/Timer.h"
+
 
 #if defined(__cplusplus)
 extern "C" {
@@ -34,12 +37,19 @@ extern "C" {
 class Controler{
 public:
 	Controler();
-	~Controler() = default;
+	~Controler();
 	bool Run();
 	static void recvTask(void* pvParameters);
 	static void controlTask1(void* pvParameters);
-//	static void uart_callback(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData);
+	static void motorControlTask(void* pvParameters);
+
+	static void servedButton(uint8_t address);
+	static void servedLimitSensor(Message& mess);
+	static void initElevator();
+
 private:
+	Timer _timer;
+
 };
 
 #endif /* CONTROLER_H_ */

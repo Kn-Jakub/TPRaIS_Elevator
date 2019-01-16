@@ -15,7 +15,7 @@ public:
 	Timer();
 	~Timer();
 
-	bool starTimer();
+	bool startTimer();
 	bool setTime(uint64_t us);
 
 private:

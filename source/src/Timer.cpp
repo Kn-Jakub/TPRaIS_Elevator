@@ -17,7 +17,7 @@ Timer::Timer(): m_config()
 
 Timer::~Timer() {}
 
-bool Timer::starTimer()
+bool Timer::startTimer()
 {
 	PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
 	EnableIRQ(PIT_IRQn);

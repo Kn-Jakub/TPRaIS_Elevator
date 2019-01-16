@@ -35,6 +35,7 @@ public:
 	void cabineLock(bool lock);
 	void controlMotor(uint8_t speed, Direction dir);
 	void watchDogHandler();
+	void watchDogReset();
 	void writeToConsole(uint8_t* message,uint8_t size);
 	bool verifyMessage(Message& message);
 	uint8_t calcCRC(uint8_t receiverAddress, uint8_t senderAddress, uint8_t* data, uint8_t dataSize);

@@ -148,6 +148,12 @@ void Communicator::watchDogHandler()
 	sendCommand(WATCHDOG, &data, 1);
 }
 
+void Communicator::watchDogReset()
+{
+	uint8_t data = 0x01;
+	sendCommand(WATCHDOG, &data, 1);
+}
+
 void Communicator::writeToConsole(uint8_t* message,uint8_t size)
 {
 	sendCommand(TERMINAL, message, size);
