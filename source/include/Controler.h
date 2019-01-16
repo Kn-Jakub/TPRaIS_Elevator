@@ -10,7 +10,7 @@
 
 
 #include "include/MMA8451Q.h"
-//#include <include/Timer.h>
+//#include <include/T.h>
 #include "include/LED.h"
 #include <fsl_lpsci.h>
 
@@ -20,13 +20,14 @@
 #include "timers.h"
 #include "queue.h"
 
+
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
 	void PIT_IRQHandler();
 	void PORTA_DriverIRQHandler(void);
-
+	void uart_callback(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData);
 
 } //extern C
 
@@ -37,7 +38,7 @@ public:
 	bool Run();
 	static void recvTask(void* pvParameters);
 	static void controlTask1(void* pvParameters);
-	static void uart_callback(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData);
+//	static void uart_callback(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData);
 private:
 };
 
