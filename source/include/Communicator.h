@@ -24,7 +24,7 @@
 
 class Communicator {
 public:
-	Communicator();
+	Communicator(lpsci_handle_t* _uart_handle);
 	virtual ~Communicator();
 
 	bool sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize);
@@ -44,6 +44,7 @@ private:
 
 private:
 	uint8_t _myAddress;
+	lpsci_handle_t* _uart_handle;
 
 };
 

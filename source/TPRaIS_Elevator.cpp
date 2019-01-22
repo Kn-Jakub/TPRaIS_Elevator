@@ -29,40 +29,41 @@
  */
  
 /**
- * @file    MKL25Z128xxx4_Project.cpp
- * @brief   Application entry point.
+ * @file    TPRaIS_Elevator.cpp
+ * @author	Jakub Pekar
+ * @brief   Vstupný bod aplikácie
  */
 #include <stdio.h>
-#include "board.h"
-#include "peripherals.h"
-#include "pin_mux.h"
-#include "clock_config.h"
+#include <board.h>
+#include <peripherals.h>
+#include <pin_mux.h>
+#include <clock_config.h>
+
 #include "MKL25Z4.h"
 #include "fsl_debug_console.h"
 
 /* API Includes*/
 #include "include/Controler.h"
 
+/* Predefitions */
 
-/* TODO: insert other include files here. */
-
-/* TODO: insert other definitions and declarations here. */
-
-/* Globals */
-
-/* Declarations */
-
+/**
+ * @brief  Inicializácia potrebných rozhraní na doske
+ * @param none
+ * @return none
+ */
 void BOARD_INIT();
-//static void recvTask(void* pvParameters);
-//static void controlTask2(void* pvParameters);
-/*
- * @brief   Application entry point.
+
+/**
+ * @brief   Hlavná funkcia riadiaceho programu výťahu
  */
 int main(void) {
 
   	/* Init board hardware. */
     BOARD_INIT();
     PRINTF("Start with rtos\n");
+
+    /* Definícia hlavného objektu riadiaceho programu */
     Controler mainControler;
     mainControler.Run();
 
@@ -72,23 +73,6 @@ int main(void) {
 }
 
 /* Definitions */
-
-//static void recvTask(void* pvParameters)
-//{
-//	for(;;)
-//	{
-//		PRINTF("RECV TASK\n");
-//		vTaskDelay(500 / portTICK_PERIOD_MS);
-//	}
-//}
-//static void controlTask2(void* pvParameters)
-//{
-//	for(;;)
-//	{
-//		PRINTF(" TASK 2 \n");
-//		vTaskDelay(2000 / portTICK_PERIOD_MS);
-//	}
-//}
 
 void BOARD_INIT()
 {

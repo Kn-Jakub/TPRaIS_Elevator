@@ -2,14 +2,15 @@
  * Communicator.cpp
  *
  *  Created on: 3. 12. 2018
- *      Author: jakub
+ *      Author: Jakub Pekar
  */
 
-
-#include <include/Communicator.h>
 #include "fsl_debug_console.h"
-#include <include/LED.h>
 #include <assert.h>
+
+/* API Includes */
+#include <include/Communicator.h>
+#include <include/LED.h>
 #include "include/Controler.h"
 
 static const uint8_t CRCTab[] =
@@ -30,7 +31,7 @@ static const uint8_t CRCTab[] =
 	    233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
 	    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53};
 
-Communicator::Communicator(): _myAddress(0x00)
+Communicator::Communicator(lpsci_handle_t* uart_handle): _myAddress(0x00), _uart_handle(uart_handle)
 {
 	sender.data =(uint8_t*) sendBuffer;
 	sender.dataSize = 0;
@@ -57,8 +58,14 @@ bool Communicator::sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t da
 	while(!txFinished); // waiting for send all data
 
 //	txFinished = false;
-	//LPSCI_TransferSendNonBlocking(UART0, (lpsci_handle_t*) &uart_handle , (lpsci_transfer_t*) &sender);
-	LPSCI_WriteBlocking(UART0, sender.data, sender.dataSize);
+//	LPSCI_TransferSendNonBlocking(UART0, (lpsci_handle_t*) _uart_handle , (lpsci_transfer_t*) &sender);
+//	do{
+		LPSCI_WriteBlocking(UART0, sender.data, sender.dataSize);
+//		vTaskDelay(10 / portTICK_PERIOD_MS);
+//	}while(ackArrived);
+
+	ackArrived = false;
+
 	return true;
 }
 
