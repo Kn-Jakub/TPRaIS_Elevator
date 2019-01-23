@@ -1,8 +1,8 @@
 /*
- * Communicator.h
- *
- *  Created on: 3. 12. 2018
- *      Author: Jakub Pekar
+ * @file    Controler.h
+ * @author	Jakub Pekar
+ * @brief   Súbor obsahujúci deklaráciu triedy Controler
+ * @date 	3. 12. 2018
  */
 
 /*
@@ -14,18 +14,20 @@
 
 #ifndef SRC_COMMUNICATOR_H_
 #define SRC_COMMUNICATOR_H_
-//#include "include/RingBuffer.h"
+
 #include <stdint-gcc.h>
 #include <fsl_lpsci.h>
 #include "include/definitions.h"
 
 
-
+/**
+ * Trieda zabaľujúca komunikáciu s výťahom
+ */
 
 class Communicator {
 public:
 	Communicator(lpsci_handle_t* _uart_handle);
-	virtual ~Communicator();
+	virtual ~Communicator() = default;
 
 	bool sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize);
 	void setLed(uint8_t ledAddress, bool state);
@@ -39,8 +41,6 @@ public:
 	void writeToConsole(uint8_t* message,uint8_t size);
 	bool verifyMessage(Message& message);
 	uint8_t calcCRC(uint8_t receiverAddress, uint8_t senderAddress, uint8_t* data, uint8_t dataSize);
-private:
-
 
 private:
 	uint8_t _myAddress;

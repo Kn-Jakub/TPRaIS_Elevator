@@ -10,6 +10,7 @@
 #include <fsl_gpio.h>
 #include <pin_mux.h>
 
+
 typedef enum color{
 	RED = BOARD_INITPINS_LED_RED_PIN,
 	GREEN = BOARD_INITPINS_LED_GREEN_PIN,

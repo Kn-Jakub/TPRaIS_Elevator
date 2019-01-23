@@ -2,6 +2,7 @@
  * @file    Controler.cpp
  * @author	Jakub Pekar
  * @brief   Súbor obsahújúci zdrojové kódy hlavného riadiaceho objektu
+ * @date 	14. 12. 2018
  */
 
 #include <fsl_pit.h>
@@ -14,10 +15,13 @@
 #include "include/Communicator.h"
 
 /**
- * Globálne premenné danej triedy.
- * Musia byť globálne kvoli využívaniu v prerušovacích rutinách
+ * Globálna premenná  prostredníctvom ktorej Controler komunikuje s výťahom.
  **/
 Communicator* communicator;
+
+/**
+ * Globálna premenná  prostredníctvom ktorej prebieha komunikácia s akcelerometrom
+ **/
 MMA8451Q* accelerometer;
 
 volatile bool hValue = false;
@@ -27,9 +31,9 @@ volatile double motorEncoder = 0;
  * Inicializuje atribut _timer, ktorý slúži pre odosielanie správ WatchDog modulu výťahu.
  * Vytvára vlákna v ktorých sa vykonáva obsluha výťahu.
  * Konfiguruje komunikačné rozhranie UART prostredníctvom LPSCI ovládača.
- * Vytvára globálne objekty: 	- communicator - pre komunikáciu s výťahom
- * 								- acceleromter - pre detekciu voľného pádu/detekciu dotyku
- *
+ * Vytvára globálne objekty:
+ * 				- communicator - pre komunikáciu s výťahom
+ * 				- accelerometer - pre detekciu voľného pádu/detekciu dotyku
  **/
 Controler::Controler():_timer()
 {
@@ -150,7 +154,7 @@ void Controler::initElevator()
 /**
  * Obsluha tlačidiel. Funkcia je vyvolaná po stlačení tlačidla. Na základe získanej adresy sa vykoná sekvencia príkazov,
  * ktorá obsahuje zapnutie príslušných LED diód označujúcich poschodia na ktorých výťah bude stáť. Taktiež sa nastavia globálne hodnoty na základe ktorých prebieha riadenie motora.
- * @param: address - adresa prvku výťahu.
+ * @param address - adresa prvku výťahu.
  */
 void Controler::servedButton(uint8_t address)
 {
@@ -228,7 +232,7 @@ void Controler::servedButton(uint8_t address)
  * Obsluha sensorov výťahu. Sensory detekujú na ktorom poschodí sa aktuálne výťah nachádza.
  * Na základe prijatej adressy sa vykoná obsluha pre daný senzor. Ak je v globálnej premennej nastavené dane poschodie ako poschodie na ktorom jhe potrebné zastaviť, odošle sa správa pre motor výťahu s príkazom zastaviť (STOP).
  * Následne sa aktualizuje displej výťahu.
- * @param: mess - správa z daného senzoru, ktorá obsahuje aj adresu senzora.
+ * @param mess - správa z daného senzoru, ktorá obsahuje aj adresu senzora.
  */
 void Controler::servedLimitSensor(Message& mess)
 {
@@ -289,6 +293,7 @@ void Controler::servedLimitSensor(Message& mess)
 /**
  * Funkcia obsluhy otvorenia dverí po zastavení na niektorom poschodí.
  * Vo funkcii sa nastavujú LED diódy pre dané poschodie. otvoria sa dvere, počka sa určitý čas a dvere sa opäť zatvoria.
+ * @param elevPos	-pozícia výťahu
  */
 void Controler::openDoor(uint8_t elevPos)
 {
@@ -316,12 +321,12 @@ void Controler::openDoor(uint8_t elevPos)
 /**
  * Callback funkcia pre dané komunikačné rozhranie UART.
  * Vo funkcii sa po zavolaní nastavujú príznaky, ktoré značia že komunikácia bola uspešne dokončená.
- * @param: base - adresa rozhrania ktoré vyvolalo callback funkciu
- * @param: handle - handler daného rozhrania
- * @param: status - indikuje stav po ktorom bola funkcia vyvolaná
- * @param: userData - dodatočné použivatelské dáta
+ * @param base 		- adresa rozhrania ktoré vyvolalo callback funkciu
+ * @param handle 	- handler daného rozhrania
+ * @param status 	- indikuje stav po ktorom bola funkcia vyvolaná
+ * @param userData 	- dodatočné použivatelské dáta
  */
-void uart_callback(UART0_Type *base, lpsci_handle_t *handle, status_t status, void *userData){
+void uart_callback(UART0_Type* base, lpsci_handle_t* handle, status_t status, void* userData){
 	if (kStatus_LPSCI_TxIdle == status)
 	{
 		txFinished = true;
@@ -341,7 +346,8 @@ void Controler::recvTask(void* pvParameters)
 {
 	uint8_t msgSize;
 	Message mess;
-
+	communicator->controlDisplay(0, STOP);
+	PRINTF("Receiving thread\n");
 	for(;;)
 	{	/* Prijatie prveho bytu 0xA0 */
 		receiver.dataSize = 1;
@@ -423,8 +429,7 @@ void Controler::recvTask(void* pvParameters)
 
 void Controler::motorControlTask(void* pvParameters)
 {
-//	uint8_t counter = 0;
-
+	PRINTF("Motor control thread\n");
 	vTaskDelay(100 / portTICK_PERIOD_MS);
 	initElevator();
 	PRINTF("After INIT\n");
@@ -473,7 +478,7 @@ void Controler::motorControlTask(void* pvParameters)
 					communicator->controlMotor(20, elevatorDirection);
 					communicator->controlDisplay(elevatorPosition, UP);
 					elevatorIsMoving = true;
-					isNextFloor =false;
+					isNextFloor =true;
 				}
 				else if((floorElevator[0] || floorElevator[1] || floorElevator[2] ||floorElevator[3] ||floorElevator[4]))
 				{
@@ -517,7 +522,7 @@ void Controler::motorControlTask(void* pvParameters)
 				{
 					communicator->controlMotor(20, elevatorDirection);
 					elevatorIsMoving = true;
-					isNextFloor = false;
+					isNextFloor = true;
 				}
 				else if((floorElevator[0] || floorElevator[1] || floorElevator[2] ||floorElevator[3] ||floorElevator[4]))
 				{

@@ -1,8 +1,8 @@
-/*
- * Communicator.cpp
- *
- *  Created on: 3. 12. 2018
- *      Author: Jakub Pekar
+/**
+ * @file    Communicator.cpp
+ * @author	Jakub Pekar
+ * @brief   Trieda Communicator zabaľuje do objektu komunikáciu s výťahom.
+ * @date 	3. 12. 2018
  */
 
 #include "fsl_debug_console.h"
@@ -13,6 +13,9 @@
 #include <include/LED.h>
 #include "include/Controler.h"
 
+/**
+ * Statická globálna konštanta, ktorá predstavuje pole hodnôt CRC
+ */
 static const uint8_t CRCTab[] =
 	    {0, 94, 188, 226, 97, 63, 221, 131, 194, 156, 126, 32, 163, 253, 31, 65,
 	    157, 195, 33, 127, 252, 162, 64, 30, 95, 1, 227, 189, 62, 96, 130, 220,
@@ -31,16 +34,26 @@ static const uint8_t CRCTab[] =
 	    233, 183, 85, 11, 136, 214, 52, 106, 43, 117, 151, 201, 74, 20, 246, 168,
 	    116, 42, 200, 150, 21, 75, 169, 247, 182, 232, 10, 84, 215, 137, 107, 53};
 
+/**
+ * Konštruktor triedy, v ktor8 zaobaľuje správy pre riadenie výťahu do metód objektu.
+ * Nastavuje adresu odosielateľa na 0x00.
+ */
 Communicator::Communicator(lpsci_handle_t* uart_handle): _myAddress(0x00), _uart_handle(uart_handle)
 {
 	sender.data =(uint8_t*) sendBuffer;
 	sender.dataSize = 0;
 }
 
-Communicator::~Communicator()
-{
-}
-
+/**
+ * V metóde sa skladá správa pre komunikačný modul výťahu.
+ * 		1B				 1B					1B           1B
+ * |  StartByte  | ReceiverAddress  | SenderDdress  | DataSize | ... DATA  ... | CRC |
+ *
+ * @param elementAddress - adresa prvku ktorému je určená správa
+ * @param data	-data na odoslanie
+ * @param dataSize	-veľkosť dát
+ * @return bool 	-potvrdenie odoslania správy
+ */
 bool Communicator::sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t dataSize)
 {
 	uint8_t sizeOfData = 0;
@@ -55,8 +68,10 @@ bool Communicator::sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t da
 	sizeOfData++;
 	sender.dataSize = sizeOfData + dataSize;
 
-	while(!txFinished); // waiting for send all data
-
+	while(!txFinished) // waiting for send all data
+	{
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+	}
 //	txFinished = false;
 //	LPSCI_TransferSendNonBlocking(UART0, (lpsci_handle_t*) _uart_handle , (lpsci_transfer_t*) &sender);
 //	do{
@@ -69,19 +84,32 @@ bool Communicator::sendCommand(uint8_t elementAddress, uint8_t* data, uint8_t da
 	return true;
 }
 
-
+/**
+ * Metoda nastavujuca stav danej LED diody.
+ * @param ledAddressa	- adresa LED diody
+ * @param state		-true: zapnutie LED diody false: vypnutie LED diody
+ */
 void Communicator::setLed(uint8_t ledAddress, bool state)
 {
 	uint8_t data = uint8_t(state);
 	sendCommand(ledAddress, &data, 1);
 }
 
+/**
+ * Metoda aktivuje/deaktivuje núdzovú brzdu.
+ * @param ON		-true/false: aktivácia/deaktivácia núdzovej brzdy
+ */
 void Communicator::emergencyBreak(bool ON)
 {
 	uint8_t data = uint8_t(ON);
 	sendCommand(EMERGENCY_BREAK, &data, 1);
 }
 
+/**
+ * Metoda nastavujúca stav displeja výťahu
+ * @param floor			- čislo poschodia
+ * @param direction		- UP/DOWN/STOP [hore/dole/zastavenie]
+ */
 void Communicator::controlDisplay(uint8_t floor,Direction direction)
 {
 	uint8_t data[2];
@@ -119,12 +147,21 @@ void Communicator::controlDisplay(uint8_t floor,Direction direction)
 	sendCommand(DISPLAY, data, 2);
 }
 
+/**
+ * Uzamykanie kabiny
+ * @param lock 	-true/false zamknutie/odomknutie kabiny
+ */
 void Communicator::cabineLock(bool lock)
 {
 	uint8_t data = uint8_t(lock);
 	sendCommand(CABIN, &data, 1);
 }
 
+/**
+ * Ovládanie motora výťahu
+ * @param speed	- rýchlosť výťahu [0-100]
+ * @param dir	- smer pohybu výťahu UP-hore, DOWN-dole, STOP-zastavenie
+ */
 void Communicator::controlMotor(uint8_t speed, Direction dir)
 {
 	uint8_t data[5] = {0x02, 0, 0, 0, 0};
@@ -149,22 +186,43 @@ void Communicator::controlMotor(uint8_t speed, Direction dir)
 	sendCommand(MOTOR, data, 5);
 }
 
+/**
+ * Odoslanie správy pre WatchDog, aby nedošlo k blokovaniu výťahu
+ */
+
 void Communicator::watchDogHandler()
 {
 	uint8_t data = 0x02;
 	sendCommand(WATCHDOG, &data, 1);
 }
 
+/**
+ * Odblokovanie WatchDog modulu po zablokovaní
+ */
 void Communicator::watchDogReset()
 {
 	uint8_t data = 0x01;
 	sendCommand(WATCHDOG, &data, 1);
 }
 
+/**
+ * Metoda prostredníctvom ktorej je možné zapisovať správy do terminálu výťahu.
+ * @param 	message	- smerník na danu správu
+ * @param	size	- veľkosť správy max. 255 bytov
+ */
+
 void Communicator::writeToConsole(uint8_t* message,uint8_t size)
 {
 	sendCommand(TERMINAL, message, size);
 }
+
+/**
+ * Výpočet CRC pre zadané parametre správy
+ * @param receiverAddress	-adresa prijímateľa
+ * @param senderAddress		-adresa odosielateľa
+ * @param data				-data pre výpočet
+ * @param dataSize			-veľkosť dát
+ */
 
 uint8_t Communicator::calcCRC(uint8_t receiverAddress, uint8_t senderAddress, uint8_t* data, uint8_t dataSize)
 {
@@ -179,6 +237,10 @@ uint8_t Communicator::calcCRC(uint8_t receiverAddress, uint8_t senderAddress, ui
 	return CRC;
 }
 
+/**
+ * Overenie správnosti CRC pre prijatú správu
+ * @param message -referencia prijatej správy ktorá potrebuje overenie CRC
+ */
 bool Communicator::verifyMessage(Message& message)
 {
 	return (calcCRC(message.getReceiverAddress(), message.getSenderAddress(), message.data, message.getSize()) == message.getCRC());

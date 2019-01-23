@@ -1,7 +1,8 @@
-/**
- * @file    Controler.cpp
+/*
+ * @file    Controler.h
  * @author	Jakub Pekar
  * @brief   Súbor obsahujúci deklaráciu triedy Controler
+ * @date 	14. 12. 2018
  */
 
 #ifndef CONTROLER_H_

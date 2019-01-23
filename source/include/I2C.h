@@ -13,7 +13,7 @@
 class I2C {
 public:
 	I2C(uint32_t clockRate);
-	~I2C();
+	~I2C() = default;
 	uint8_t write(uint8_t device_adrr, uint8_t reg_addr, uint8_t* value, uint8_t size, uint32_t flags = kI2C_TransferDefaultFlag);
 	uint8_t read(uint8_t device_adrr, uint8_t reg_addr, uint8_t*  buff, uint8_t size, uint32_t flags = kI2C_TransferDefaultFlag);
 private:

@@ -1,14 +1,16 @@
-/*
- * Timer.cpp
- *
- *  Created on: 19. 11. 2018
- *      Author: Jakub Pekar
+/**
+ * @file    Timer.cpp
+ * @author	Jakub Pekar
+ * @brief   Súbor obsahújúci zdrojové kódy pre PIT časovač
+ * @date 	26. 10. 2018
  */
-
 #include "fsl_debug_console.h"
 
 #include "../include/Timer.h"
 
+/*
+ * V konštruktore prebieha inicializácia PIT periférie
+ */
 Timer::Timer(): m_config()
 {
 	PIT_GetDefaultConfig(&m_config);
@@ -17,6 +19,10 @@ Timer::Timer(): m_config()
 
 Timer::~Timer() {}
 
+/**
+ * Metóda pre spustenie časovača. Na začiatku sa povolia prerušenia a následne je spustený samotný časovač.
+ * @returns	true/false
+ */
 bool Timer::startTimer()
 {
 	PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
@@ -24,6 +30,12 @@ bool Timer::startTimer()
 	PIT_StartTimer(PIT, kPIT_Chnl_0);
 	return true;
 }
+
+/**
+ * Metoda nastavuje interval časovača, v ktorom bude vykonávaná prerušovacia rutina
+ * @param time_us	čas v mikrosekundách
+ * @returns	true/false
+ */
 
 bool Timer::setTime(uint64_t time_us)
 {

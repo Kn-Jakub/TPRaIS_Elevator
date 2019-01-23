@@ -32,6 +32,7 @@
  * @file    TPRaIS_Elevator.cpp
  * @author	Jakub Pekar
  * @brief   Vstupný bod aplikácie
+ * @date 	3. 12. 2018
  */
 #include <stdio.h>
 #include <board.h>
@@ -49,8 +50,6 @@
 
 /**
  * @brief  Inicializácia potrebných rozhraní na doske
- * @param none
- * @return none
  */
 void BOARD_INIT();
 

@@ -1,20 +1,9 @@
-/* Copyright (c) 2010-2011 mbed.org, MIT License
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of this software
-* and associated documentation files (the "Software"), to deal in the Software without
-* restriction, including without limitation the rights to use, copy, modify, merge, publish,
-* distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all copies or
-* substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
-* BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-* DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+/**
+ * @file    MMA8451Q.cpp
+ * @author	Jakub Pekar
+ * @brief   Súbor obsahújúci zdrojové kódy pre konfiguráciu a komunikáciu s Akcelerometrom MMA8415Q na vývojovej doske FRMD-KL25Z
+ * @date 	5. 10. 2018
+ */
 
 
 #include "fsl_debug_console.h"
@@ -50,15 +39,20 @@
 #define REG_PULSE_WIND	0x28
 #define REG_CTRL_REG_2  0x2B
 
-
 #define UINT14_MAX        		16383
 
 #define ACCEL_I2C_CLK_FREQ   	CLOCK_GetFreq(I2C0_CLK_SRC)
 
+/**
+ * Konštruktor daného objektu akcelerometra. Inicializuje objekt pre komunikáciu I2C.
+ * @param	addr 	-addresa akcelerometra
+ *
+ */
 MMA8451Q::MMA8451Q(int addr) : m_addr(addr),m_I2C((uint32_t)ACCEL_I2C_CLK_FREQ) {}
 
-MMA8451Q::~MMA8451Q() {}
-
+/**
+ * Inicializácia Akcelerometra nastavuje potrebné hodnoty pre dané registre
+ */
 void MMA8451Q::init()
 {
 	/*  please refer to the "example FXOS8700CQ Driver Code" in FXOS8700 datasheet. */
@@ -93,6 +87,9 @@ void MMA8451Q::init()
 
 }
 
+/**
+ * Konfigurácia detekcie voľného pádu. Ak chce uživateľ vyvolávať prerušenie PORT_A prostredníctvom detekcie voľného pádu je potrebné zavolať túto funkciu.
+ */
 void MMA8451Q::freefall()
 {
 	/*  write 0010 0000 = 0x20 to accelerometer control register 1 */
@@ -151,6 +148,9 @@ void MMA8451Q::freefall()
 	m_I2C.write(m_addr, REG_CTRL_REG_1, &value, 1);
 }
 
+/**
+ * Konfigurácia detekcie dotyku. Ak chce uživateľ vyvolávať prerušenie PORT_A prostredníctvom detekcie dotyku je potrebné zavolať túto funkciu.
+ */
 void MMA8451Q::tapDetection()
 {
 	uint8_t value = 0x00;
@@ -194,6 +194,10 @@ void MMA8451Q::tapDetection()
 	EnableIRQ(PORTA_IRQn);
 }
 
+/**
+ * Metóda vracia adresu akcelerometra.
+ * @returns adresa akcelerometra
+ */
 uint8_t MMA8451Q::getWhoAmI()
 {
 	uint8_t who_am_i = 0;
@@ -201,25 +205,46 @@ uint8_t MMA8451Q::getWhoAmI()
 	return who_am_i;
 }
 
+/**
+ * Metóda vracia X-novú hodnotu akceleometra vo float hodnote [-1 :: 1]
+ * @returns hodnotu akcelemotra na X-ovej osi
+ */
 float MMA8451Q::getX()
 {
 	return (float(getAxis(REG_OUT_X_MSB))/4096.0);
 }
 
+/**
+ * Metóda vracia Y-novú hodnotu akceleometra vo float hodnote [-1 :: 1]
+ * @returns hodnotu akcelemotra na Y-ovej osi
+ */
 float MMA8451Q::getY() {
     return (float(getAxis(REG_OUT_Y_MSB))/4096.0);
 }
 
+/**
+ * Metóda vracia Z-novú hodnotu akceleometra vo float hodnote [-1 :: 1]
+ * @returns hodnotu akcelemotra na Z-ovej osi
+ */
 float MMA8451Q::getZ() {
     return (float(getAxis(REG_OUT_Z_MSB))/4096.0);
 }
 
+/**
+ * Metóda nastavuje X,Y,Z hodnotu akceleometra vo float hodnote [-1 :: 1]
+ * @param res	-smerník na pole 3*float, do ktorej sa uložia hodnoty akcelerometra.
+ */
 void MMA8451Q::getAllAxis(float * res) {
     res[0] = getX();
     res[1] = getY();
     res[2] = getZ();
 }
 
+/**
+ * Vracia surovú hodnotu z akcelerometra. Os akclerometra sa určuje na zaklade prijatého parametra.
+ * @param addr		-adresa osi akcelerometra
+ * @returns 		-surová hodnota z akcelerometra [-1024 :: 1024]
+ */
 int16_t MMA8451Q::getAxis(uint8_t addr) {
     int16_t acc;
     uint8_t res[2];
@@ -236,4 +261,5 @@ uint8_t MMA8451Q::readRegs(uint8_t reg, uint8_t* data, uint8_t size)
 {
 	return m_I2C.read(m_addr, reg, data, size);
 }
+
 
